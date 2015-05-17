@@ -14,6 +14,8 @@
 #include "MainGameScene.h"
 #include <iostream>
 
+#define GAME_OVER_BROADCAST "GAME_OVER" 
+
 USING_NS_CC;
 
 class MainGame;
@@ -23,10 +25,14 @@ class GameOverScene:public MyBlock {
 private:
     Size visibleSize;
     MainGame *context;
+
     
 public:
-    static GameOverScene* createWithContext(MainGame *context);
-    bool initWithContext(MainGame *context);
+    static GameOverScene* createWithContext(MainGame *context,string label, float fontSize, Color3B textColor);
+    bool initWithContext(MainGame *context,string label, float fontSize, Color3B textColor);
+           static void updateGameOverView(float dt);
+    void updateView(CCObject* obj);
+
 };
 
 

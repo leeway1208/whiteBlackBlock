@@ -4,6 +4,29 @@
 #include "cocos2d.h"
 #include "MyBlock.h"
 #include "GameOverScene.h"
+#include "SimpleAudioEngine.h"
+
+
+#define SaveStringToXML UserDefault:: getInstance()->setStringForKey
+
+#define SaveIntegerToXML UserDefault:: getInstance()->setIntegerForKey
+
+#define SaveFloatToXML UserDefault:: getInstance()->setFloatForKey
+
+#define SaveBooleanToXML UserDefault:: getInstance()->setBoolForKey
+
+#define LoadStringFromXML UserDefault:: getInstance()->getStringForKey
+
+#define LoadIntegerFromXML UserDefault:: getInstance()->getIntegerForKey
+
+#define LoadBooleanFromXML UserDefault:: getInstance()->getBoolForKey
+
+#define LoadFloatFromXML UserDefault:: getInstance()->getFloatForKey
+
+#define UserdefaultFlush UserDefault:: getInstance()-> flush()
+
+
+#define GAME_OVER_BROADCAST "GAME_OVER"  
 
 using namespace std;
 USING_NS_CC;
@@ -23,6 +46,8 @@ private:
     int gameTotalLines;
     int curentLineClicked;
     GameOverScene *gameOver;
+    string mNewTime;
+    long offset;
     
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer
@@ -44,13 +69,16 @@ public:
     void addEndLine();
     
     void moveDown();
-    
+
+
     
     //timer
     void startTimer();
     void stopTimer();
     
     virtual void update(float dt);
+  
+
     
 };
 

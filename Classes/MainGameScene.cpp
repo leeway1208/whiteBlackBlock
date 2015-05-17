@@ -45,6 +45,8 @@ bool MainGame::init()
     auto listener = EventListenerTouchOneByOne::create();
     listener -> onTouchBegan = [this](Touch* t,Event* e){
       
+     
+        
         auto getBlocks = MyBlock::getBlocks();
         MyBlock *myBlock;
         
@@ -61,7 +63,7 @@ bool MainGame::init()
                         
                     }
                     
-                   
+                    CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("right.wav");
                     this->moveDown();
                     curentLineClicked ++;
                     CCLOG("%d",curentLineClicked);
@@ -70,14 +72,41 @@ bool MainGame::init()
                     if(curentLineClicked == gameTotalLines){
                         this->stopTimer();
                         this->moveDown();
+                        float newTime = int((((double)offset)/100000+0.005)*100) / 100.0;
+                        SaveFloatToXML("record_timer",newTime);
+                        //SaveBooleanToXML("game_over",true);
+                        UserdefaultFlush;
+                     
+                        //scheduleOnce(schedule_selector(GameOverScene::updateGameOverView), 1.0f);
+        
+          
+                        CCNotificationCenter::sharedNotificationCenter()->postNotification(GAME_OVER_BROADCAST, (CCObject*)1);
+                        
+//                        auto b = GameOverScene::createWithContext(this);
+//                        b->setLineIndex(-1);
+//                        b->setPositionY(b->getLineIndex()*visibleSize.height/4);
+//                        gameLayer->addChild(b);
                     }
                     
                 }else if (myBlock->getColor()==Color3B::GREEN){
                     
                 }else{
-                    MessageBox("你点错了", "点错了");
+                    
+                    //MessageBox("你点错了", "点错了");
+                    
+                    CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("wrong.wav");
                     myBlock->setColor(Color3B::RED);
                     this->stopTimer();
+                   
+                    MyBlock::removeAllBlocks();
+                   
+                    //if click error and restart the game
+                    auto b = GameOverScene::createWithContext(this,"游戏失败!", 55, Color3B::RED);
+                    b->setLineIndex(-1);
+                    b->setPositionY(b->getLineIndex()*visibleSize.height/4);
+                    gameLayer->addChild(b);
+                    
+                    
                 }
                 
                 break;
@@ -99,13 +128,16 @@ bool MainGame::init()
 
 void MainGame::update(float dt){
     
-    long offset = clock()- startTime;
+    offset = clock()- startTime;
   
-    string time = StringUtils::format("%f",int((((double)offset)/100000+0.005)*100) / 100.0);
+    mNewTime = StringUtils::format("%f",int((((double)offset)/100000+0.005)*100) / 100.0);
  
     
     
-    timerLabel->setString (time.substr(0,time.length() - 4));
+    timerLabel->setString (mNewTime.substr(0,mNewTime.length() - 4));
+    
+    
+    
 }
 
 
@@ -144,7 +176,7 @@ void MainGame::moveDown(){
 
 
 void MainGame::addEndLine(){
-    auto b = GameOverScene::createWithContext(this);
+    auto b = GameOverScene::createWithContext(this,"游戏结束", 55, Color3B::GREEN);
     b->setLineIndex(4);
     b->setPositionY(b->getLineIndex()*visibleSize.height/4);
     gameLayer->addChild(b);
@@ -156,14 +188,16 @@ void MainGame::addEndLine(){
 void MainGame::addStartLine(){
     auto block = MyBlock::createBlocks(Color3B::YELLOW, Size(visibleSize.width, visibleSize.height/4), "开始", 55, Color4B::BLACK);
     gameLayer->addChild(block);
-    //block->setLineIndex(0);
+    block->setLineIndex(0);
     
     
 }
 
 
+
+
 void MainGame::startGame(){
-    
+
      //nobody click the blocks
      curentLineClicked = 0;
      gameTotalLines = 5;
